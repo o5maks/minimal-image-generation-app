@@ -1,4 +1,6 @@
 pytorch
 torchvision
 torchaudio
+diffusers
+customtkinter
 pytorch-cuda=12.1
