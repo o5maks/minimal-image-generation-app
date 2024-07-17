@@ -7,6 +7,8 @@ from customtkinter import (
 
 from PIL.ImageTk import PhotoImage as Image
 
+from uuid import uuid1
+
 from torch import float16, autocast
 from diffusers import StableDiffusionPipeline
 
@@ -14,7 +16,7 @@ device = 'cuda' # https://developer.nvidia.com/cuda-downloads?target_os=Windows
 model = 'CompVis/stable-diffusion-v1-4' 
 
 pipeline = StableDiffusionPipeline.from_pretrained("CompVis/stable-diffusion-v1-4", revision="fp16", torch_dtype=float16) 
-pipeline.to("cuda") 
+pipeline.to(device) 
 
 window = Tk()
 window.title('Image Generation')
@@ -30,7 +32,8 @@ def generate():
     with autocast(device_type=device): 
         image = pipeline(prompts.get(), guidance_scale=8.5).images[0]
     
-    image.save('generatedimage.png')
+
+    image.save(f'assests/{uuid1()}.png')
     img = Image(image)
     label.configure(image=img)
 
