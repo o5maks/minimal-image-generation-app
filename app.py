@@ -5,17 +5,18 @@ from customtkinter import (
     CTkEntry
 )
 
-from PIL.ImageTk import PhotoImage as Image
-
-from uuid import uuid1
-
-from torch import float16, autocast
+import torch
+from torch import autocast, cuda
 from diffusers import StableDiffusionPipeline
 
-device = 'cuda' # https://developer.nvidia.com/cuda-downloads?target_os=Windows
+from PIL.ImageTk import PhotoImage as Image
+from uuid import uuid1
+
+# https://developer.nvidia.com/cuda-downloads?target_os=Windows
+device = torch.device('cuda' if cuda.is_available() else 'cpu')
 model = 'CompVis/stable-diffusion-v1-4' 
 
-pipeline = StableDiffusionPipeline.from_pretrained("CompVis/stable-diffusion-v1-4", revision="fp16", torch_dtype=float16) 
+pipeline = StableDiffusionPipeline.from_pretrained(model, revision="fp16", torch_dtype=torch.float16) 
 pipeline.to(device) 
 
 window = Tk()
