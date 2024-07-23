@@ -5,19 +5,20 @@ from customtkinter import (
     CTkEntry
 )
 
-import torch
-from torch import autocast, cuda
+from torch import autocast, float16, Generator
 from diffusers import StableDiffusionPipeline
 
 from PIL.ImageTk import PhotoImage as Image
 from uuid import uuid1
 
 # https://developer.nvidia.com/cuda-downloads?target_os=Windows
-device = torch.device('cuda' if cuda.is_available() else 'cpu')
+device = 'cuda'
 model = 'CompVis/stable-diffusion-v1-4' 
 
-pipeline = StableDiffusionPipeline.from_pretrained(model, revision="fp16", torch_dtype=torch.float16) 
-pipeline.to(device) 
+pipeline = StableDiffusionPipeline.from_pretrained(model, revision="fp16", torch_dtype=float16) 
+pipeline = pipeline.to(device)
+
+generator = Generator(device).manual_seed(0)                                                                                                                                                                                            
 
 window = Tk()
 window.title('Image Generation')
@@ -30,10 +31,9 @@ prompts = CTkEntry(window, 40, 512, font=('Arial', 20), text_color="black", fg_c
 prompts.place(x=10, y=10)
 
 def generate(): 
-    with autocast(device_type=device): 
-        image = pipeline(prompts.get(), guidance_scale=8.5).images[0]
+    with autocast(device): 
+        image = pipeline(prompts.get(), generator=generator).images[0]
     
-
     image.save(f'assests/{uuid1()}.png')
     img = Image(image)
     label.configure(image=img)
